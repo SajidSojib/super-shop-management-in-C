@@ -248,6 +248,47 @@ void customerLoginMenu()
     } while (1);
 }
 
+int customerLogin()
+{
+    char phone[15];
+    char password[20];
+    int found = 0;
+
+    printHeader("CUSTOMER LOGIN");
+
+    printf("Enter Phone Number: ");
+    fgets(phone, 15, stdin);
+    phone[strcspn(phone, "\n")] = 0;
+
+    printf("Enter Password: ");
+    fgets(password, 20, stdin);
+    password[strcspn(password, "\n")] = 0;
+
+    // Search for customer with matching phone and password
+    for (int i = 0; i < customerCount; i++)
+    {
+        if (strcmp(customers[i].phone, phone) == 0 &&
+            strcmp(customers[i].password, password) == 0)
+        {
+
+            currentUserId = customers[i].id;
+            printf("\nLogin successful! Welcome %s.\n", customers[i].name);
+            pressToContinue();
+            found = 1;
+            return 1; // Success
+        }
+    }
+
+    if (!found)
+    {
+        printf("\nLogin failed! Incorrect phone number or password.\n");
+        pressToContinue();
+    }
+
+    return 0; // Failed
+}
+
+
 // admin login
 void adminLogin()
 {
@@ -280,3 +321,4 @@ void changeAdminPassword()
     adminPassword[strcspn(adminPassword, "\n")] = 0;
     printf("Password changed successfully!\n");
 }
+
