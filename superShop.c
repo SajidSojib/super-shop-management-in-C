@@ -44,3 +44,16 @@ int saleCount = 0;
 int productCapacity = 10;
 int customerCapacity = 10;
 int saleCapacity = 10;
+
+// Function Prototypes
+void initializeSystem();
+void mainMenu();
+void productManagement();
+void billingSystem();
+void customerManagement();
+void inventoryReport();
+void salesReport();
+void viewDataFiles();
+void viewProductsFile();
+void viewCustomersFile();
+void viewSalesFile();
