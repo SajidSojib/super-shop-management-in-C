@@ -66,3 +66,9 @@ void deleteProduct();
 void searchProduct();
 void saveProductsToFile();
 void loadProductsFromFile();
+
+// Customer Management Functions
+void addCustomer();
+void viewCustomers();
+void saveCustomersToFile();
+void loadCustomersFromFile();
