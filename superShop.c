@@ -51,8 +51,7 @@ int currentUserId = -1; // -1 means not logged in, 0 means admin, >0 means custo
 void initializeSystem();
 void loginMenu();
 void adminLogin();
-void customerLogin();
-void customerRegister();
+void customerLoginMenu() ;
 void adminMenu();
 void customerMenu();
 void mainMenu(); // Renamed from previous mainMenu to adminMenu
@@ -141,3 +140,109 @@ void initializeSystem()
         exit(1);
     }
 }
+
+void printHeader(char *title)
+{
+// Clear screen command for different operating systems
+#ifdef _WIN32
+    system("cls"); // Windows
+#else
+    system("clear"); // Mac/Linux
+#endif
+
+    printf("\n========================================\n");
+    printf("   %s\n", title);
+    printf("========================================\n\n");
+}
+
+void clearInputBuffer()
+{
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF)
+        ;
+}
+
+void pressToContinue()
+{
+    printf("\nPress Enter to continue...");
+    clearInputBuffer();
+    getchar();
+}
+
+void loginMenu()
+{
+    int choice;
+
+    do
+    {
+        printHeader("SUPER SHOP MANAGEMENT SYSTEM");
+        printf("1. Admin Login\n");
+        printf("2. Customer Login\n");
+        printf("3. Exit System\n");
+        printf("\nEnter your choice (1-3): ");
+        scanf("%d", &choice);
+        clearInputBuffer();
+
+        switch (choice)
+        {
+        case 1:
+            adminLogin();
+            break;
+        case 2:
+            customerLoginMenu();
+            break; // Changed to customerLoginMenu
+        case 3:
+            printf("\nExiting system...\n");
+            return;
+        default:
+            printf("\nInvalid choice! Please try again.\n");
+            pressToContinue();
+        }
+    } while (1); // Infinite loop until exit
+}
+
+void customerLoginMenu()
+{
+    int choice;
+
+    do
+    {
+        printHeader("CUSTOMER LOGIN");
+        printf("1. Login with Phone & Password\n");
+        printf("2. Register New Account\n");
+        printf("3. Back to Main Login\n");
+        printf("\nEnter your choice (1-3): ");
+        scanf("%d", &choice);
+        clearInputBuffer();
+
+        switch (choice)
+        {
+        case 1:
+            if (customerLogin() == 1)
+            {
+                customerMenu(); // Successful login
+                return;         // Return after customer menu
+            }
+            // If login failed, show this menu again
+            break;
+        case 2:
+            customerRegister();
+            // After registration, go to customer menu
+            if (currentUserId > 0)
+            {
+                customerMenu();
+                return;
+            }
+            break;
+        case 3:
+            return; // Back to main login
+        default:
+            printf("\nInvalid choice! Please try again.\n");
+            pressToContinue();
+        }
+    } while (1);
+}
+
+
+
+
