@@ -36,6 +36,7 @@ typedef struct
 } Sale;
 
 // Global variables
+char adminPassword[50] = "admin123";
 Product *products = NULL;
 Customer *customers = NULL;
 Sale *sales = NULL;
@@ -51,8 +52,11 @@ int currentUserId = -1; // -1 means not logged in, 0 means admin, >0 means custo
 void initializeSystem();
 void loginMenu();
 void adminLogin();
-void customerLoginMenu() ;
+void changeAdminPassword();
 void adminMenu();
+int customerLogin();
+void customerLoginMenu();
+void customerRegister();
 void customerMenu();
 void mainMenu(); // Renamed from previous mainMenu to adminMenu
 void productManagement();
@@ -201,6 +205,7 @@ void loginMenu()
     } while (1); // Infinite loop until exit
 }
 
+// customer login
 void customerLoginMenu()
 {
     int choice;
@@ -243,6 +248,35 @@ void customerLoginMenu()
     } while (1);
 }
 
+// admin login
+void adminLogin()
+{
+    char password[50];
 
+    printHeader("ADMIN LOGIN");
+    printf("Enter Admin Password: ");
+    fgets(password, 50, stdin);
+    password[strcspn(password, "\n")] = 0; // Remove newline
 
+    // Check password
+    if (strcmp(password, adminPassword) == 0)
+    {
+        currentUserId = 0; // 0 means admin
+        printf("\nLogin successful! Welcome Admin.\n");
+        pressToContinue();
+        adminMenu();
+    }
+    else
+    {
+        printf("\nIncorrect password! Returning to login menu.\n");
+        pressToContinue();
+    }
+}
 
+void changeAdminPassword()
+{
+    printf("Enter new admin password: ");
+    fgets(adminPassword, 50, stdin);
+    adminPassword[strcspn(adminPassword, "\n")] = 0;
+    printf("Password changed successfully!\n");
+}
