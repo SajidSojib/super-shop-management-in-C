@@ -288,6 +288,92 @@ int customerLogin()
     return 0; // Failed
 }
 
+void customerRegister()
+{
+    printHeader("CUSTOMER REGISTRATION");
+
+    // Check if we need to expand array
+    if (customerCount >= customerCapacity)
+    {
+        customerCapacity *= 2;
+        customers = (Customer *)realloc(customers, customerCapacity * sizeof(Customer));
+    }
+
+    Customer newCustomer;
+    newCustomer.id = getNextCustomerId();
+    newCustomer.totalSpent = 0;
+
+    // Get customer details
+    printf("Enter Name: ");
+    fgets(newCustomer.name, 50, stdin);
+    newCustomer.name[strcspn(newCustomer.name, "\n")] = 0;
+
+    printf("Enter Age: ");
+    scanf("%d", &newCustomer.age);
+    clearInputBuffer();
+
+    // Check if phone already exists
+    int phoneExists;
+    do
+    {
+        phoneExists = 0;
+        printf("Enter Phone Number: ");
+        fgets(newCustomer.phone, 15, stdin);
+        newCustomer.phone[strcspn(newCustomer.phone, "\n")] = 0;
+
+        // Check if phone already registered
+        for (int i = 0; i < customerCount; i++)
+        {
+            if (strcmp(customers[i].phone, newCustomer.phone) == 0)
+            {
+                printf("Phone number already registered! Please use a different number.\n");
+                phoneExists = 1;
+                break;
+            }
+        }
+    } while (phoneExists);
+
+    // Get password
+    char password1[20], password2[20];
+    do
+    {
+        printf("Enter Password (min 4 characters): ");
+        fgets(password1, 20, stdin);
+        password1[strcspn(password1, "\n")] = 0;
+
+        printf("Confirm Password: ");
+        fgets(password2, 20, stdin);
+        password2[strcspn(password2, "\n")] = 0;
+
+        if (strcmp(password1, password2) != 0)
+        {
+            printf("Passwords don't match! Try again.\n");
+        }
+        else if (strlen(password1) < 4)
+        {
+            printf("Password must be at least 4 characters long!\n");
+        }
+        else
+        {
+            strcpy(newCustomer.password, password1);
+            break;
+        }
+    } while (1);
+
+    // Add customer to array
+    customers[customerCount] = newCustomer;
+    customerCount++;
+
+    // Set as logged in
+    currentUserId = newCustomer.id;
+
+    printf("\nRegistration successful!\n");
+    printf("Your Customer ID: %d\n", newCustomer.id);
+    printf("Please remember your phone number and password for login.\n");
+
+    saveCustomersToFile();
+    pressToContinue();
+}
 
 // admin login
 void adminLogin()
@@ -322,3 +408,113 @@ void changeAdminPassword()
     printf("Password changed successfully!\n");
 }
 
+
+// admin menu
+void adminMenu()
+{
+    int choice;
+
+    do
+    {
+        printHeader("ADMIN DASHBOARD");
+        printf("1. Product Management\n");
+        printf("2. Customer Management\n");
+        printf("3. View Sales Report\n");
+        printf("4. View Inventory Report\n");
+        printf("5. View Data Files\n");
+        printf("6. Change Admin Password\n");
+        printf("7. Logout\n");
+        printf("\nEnter your choice (1-7): ");
+        scanf("%d", &choice);
+        clearInputBuffer();
+
+        switch (choice)
+        {
+        case 1:
+            productManagement();
+            break;
+        case 2:
+            customerManagement();
+            break;
+        case 3:
+            salesReport();
+            break;
+        case 4:
+            inventoryReport();
+            break;
+        case 5:
+            viewDataFiles();
+            break;
+        case 6:
+            changeAdminPassword();
+            break;
+        case 7:
+            currentUserId = -1;
+            printf("\nLogged out successfully!\n");
+            pressToContinue();
+            return;
+        default:
+            printf("\nInvalid choice! Please try again.\n");
+            pressToContinue();
+        }
+    } while (1);
+}
+
+
+// customer menu
+void customerMenu()
+{
+    int choice;
+    int customerIndex = findCustomerById(currentUserId);
+    char customerName[50] = "Customer";
+
+    if (customerIndex != -1)
+    {
+        strcpy(customerName, customers[customerIndex].name);
+    }
+
+    do
+    {
+        printHeader("CUSTOMER DASHBOARD");
+        printf("Welcome, %s!\n", customerName);
+        printf("Customer ID: %d\n", currentUserId);
+
+        if (customerIndex != -1)
+        {
+            printf("Total Spent: %.2f\n", customers[customerIndex].totalSpent);
+        }
+
+        printf("\n1. View Products\n");
+        printf("2. Generate Bill\n");
+        printf("3. View My Purchase History\n");
+        printf("4. View My Profile\n");
+        printf("5. Logout\n");
+        printf("\nEnter your choice (1-5): ");
+        scanf("%d", &choice);
+        clearInputBuffer();
+
+        switch (choice)
+        {
+        case 1:
+            viewProducts();
+            break;
+        case 2:
+            generateBill();
+            break;
+        case 3:
+            viewCustomerPurchaseHistory();
+            break;
+        case 4:
+            viewCustomerProfile();
+            break;
+        case 5:
+            currentUserId = -1;
+            printf("\nLogged out successfully!\n");
+            pressToContinue();
+            return;
+        default:
+            printf("\nInvalid choice! Please try again.\n");
+            pressToContinue();
+        }
+    } while (1);
+}
