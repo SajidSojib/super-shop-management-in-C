@@ -115,6 +115,12 @@ int findCustomerByPhone(char *phone);
 void clearInputBuffer();
 void printHeader(char *title);
 void pressToContinue();
+void searchByID();
+void searchByName();
+void searchByCategory();
+void searchByPriceRange();
+void viewCustomerPurchaseHistory();
+void viewCustomerProfile();
 
 // File Operations
 void saveAllData();
@@ -901,3 +907,530 @@ void deleteProduct()
     pressToContinue();
 }
 
+void searchProduct()
+{
+    printHeader("SEARCH PRODUCT");
+
+    if (productCount == 0)
+    {
+        printf("No products available to search!\n");
+        pressToContinue();
+        return;
+    }
+
+    int choice;
+    printf("Search by:\n");
+    printf("1. Product ID\n");
+    printf("2. Product Name\n");
+    printf("3. Category\n");
+    printf("4. Price Range\n");
+    printf("5. Back\n");
+    printf("\nEnter your choice (1-5): ");
+    scanf("%d", &choice);
+    clearInputBuffer();
+
+    switch (choice)
+    {
+    case 1:
+        searchByID();
+        break;
+    case 2:
+        searchByName();
+        break;
+    case 3:
+        searchByCategory();
+        break;
+    case 4:
+        searchByPriceRange();
+        break;
+    case 5:
+        return;
+    default:
+        printf("Invalid choice!\n");
+        pressToContinue();
+        return;
+    }
+
+    pressToContinue();
+}
+
+void searchByID()
+{
+    int searchId;
+    printf("\nEnter Product ID: ");
+    scanf("%d", &searchId);
+    clearInputBuffer();
+
+    printf("\nSearch Results:\n");
+    printf("===========================================================================================\n");
+    printf("ID    | Name                          | Category        | Price    | Qty  | Expiry Date\n");
+    printf("===========================================================================================\n");
+
+    int found = 0;
+    for (int i = 0; i < productCount; i++)
+    {
+        if (products[i].id == searchId)
+        {
+            printf("%-5d | %-30s | %-15s | %-8.2f | %-4d | %-15s\n",
+                   products[i].id,
+                   products[i].name,
+                   products[i].category,
+                   products[i].price,
+                   products[i].quantity,
+                   products[i].expiryDate);
+            found = 1;
+            break;
+        }
+    }
+
+    if (!found)
+    {
+        printf("No product found with ID %d\n", searchId);
+    }
+    printf("===========================================================================================\n");
+}
+
+void searchByName()
+{
+    char searchTerm[50];
+    printf("\nEnter Product Name (or part of name): ");
+    fgets(searchTerm, 50, stdin);
+    searchTerm[strcspn(searchTerm, "\n")] = 0;
+
+    printf("\nSearch Results:\n");
+    printf("===========================================================================================\n");
+    printf("ID    | Name                          | Category        | Price    | Qty  | Expiry Date\n");
+    printf("===========================================================================================\n");
+
+    int found = 0;
+    for (int i = 0; i < productCount; i++)
+    {
+        // Case-insensitive search (convert both to lowercase)
+        char productNameLower[50];
+        char searchTermLower[50];
+
+        strcpy(productNameLower, products[i].name);
+        strcpy(searchTermLower, searchTerm);
+
+        // Convert to lowercase
+        for (int j = 0; productNameLower[j]; j++)
+        {
+            productNameLower[j] = tolower(productNameLower[j]);
+        }
+        for (int j = 0; searchTermLower[j]; j++)
+        {
+            searchTermLower[j] = tolower(searchTermLower[j]);
+        }
+
+        if (strstr(productNameLower, searchTermLower) != NULL)
+        {
+            printf("%-5d | %-30s | %-15s | %-8.2f | %-4d | %-15s\n",
+                   products[i].id,
+                   products[i].name,
+                   products[i].category,
+                   products[i].price,
+                   products[i].quantity,
+                   products[i].expiryDate);
+            found = 1;
+        }
+    }
+
+    if (!found)
+    {
+        printf("No products found containing '%s'\n", searchTerm);
+    }
+    printf("===========================================================================================\n");
+}
+
+void searchByCategory()
+{
+    printf("\nAvailable Categories:\n");
+    for (int i = 0; i < categoryCount; i++)
+    {
+        printf("%2d. %s\n", i + 1, categories[i]);
+    }
+
+    int catChoice;
+    printf("\nSelect Category (1-%d): ", categoryCount);
+    scanf("%d", &catChoice);
+    clearInputBuffer();
+
+    if (catChoice < 1 || catChoice > categoryCount)
+    {
+        printf("Invalid category selection!\n");
+        return;
+    }
+
+    char *selectedCategory = categories[catChoice - 1];
+
+    printf("\nSearch Results for '%s':\n", selectedCategory);
+    printf("===========================================================================================\n");
+    printf("ID    | Name                          | Category        | Price    | Qty  | Expiry Date\n");
+    printf("===========================================================================================\n");
+
+    int found = 0;
+    for (int i = 0; i < productCount; i++)
+    {
+        if (strcmp(products[i].category, selectedCategory) == 0)
+        {
+            printf("%-5d | %-30s | %-15s | %-8.2f | %-4d | %-15s\n",
+                   products[i].id,
+                   products[i].name,
+                   products[i].category,
+                   products[i].price,
+                   products[i].quantity,
+                   products[i].expiryDate);
+            found = 1;
+        }
+    }
+
+    if (!found)
+    {
+        printf("No products found in category '%s'\n", selectedCategory);
+    }
+    printf("===========================================================================================\n");
+}
+
+void searchByPriceRange()
+{
+    float minPrice, maxPrice;
+    printf("\nEnter Minimum Price: ");
+    scanf("%f", &minPrice);
+    printf("Enter Maximum Price: ");
+    scanf("%f", &maxPrice);
+    clearInputBuffer();
+
+    if (minPrice > maxPrice)
+    {
+        printf("Minimum price cannot be greater than maximum price!\n");
+        return;
+    }
+
+    printf("\nSearch Results (Price Range: %.2f - %.2f):\n", minPrice, maxPrice);
+    printf("===========================================================================================\n");
+    printf("ID    | Name                          | Category        | Price    | Qty  | Expiry Date\n");
+    printf("===========================================================================================\n");
+
+    int found = 0;
+    for (int i = 0; i < productCount; i++)
+    {
+        if (products[i].price >= minPrice && products[i].price <= maxPrice)
+        {
+            printf("%-5d | %-30s | %-15s | %-8.2f | %-4d | %-15s\n",
+                   products[i].id,
+                   products[i].name,
+                   products[i].category,
+                   products[i].price,
+                   products[i].quantity,
+                   products[i].expiryDate);
+            found = 1;
+        }
+    }
+
+    if (!found)
+    {
+        printf("No products found in price range %.2f - %.2f\n", minPrice, maxPrice);
+    }
+    printf("===========================================================================================\n");
+}
+
+
+
+// file handling
+void saveProductsToFile()
+{
+    FILE *file = fopen("products.txt", "w");
+    if (file == NULL)
+    {
+        printf("Error saving products to file!\n");
+        return;
+    }
+
+    // Write header
+    fprintf(file, "===========================================================================================\n");
+    fprintf(file, "ID    | Name                          | Category        | Price    | Qty  | Expiry Date\n");
+    fprintf(file, "===========================================================================================\n");
+
+    // Write products
+    for (int i = 0; i < productCount; i++)
+    {
+        fprintf(file, "%-5d | %-30s | %-15s | %-8.2f | %-4d | %-15s\n",
+                products[i].id,
+                products[i].name,
+                products[i].category,
+                products[i].price,
+                products[i].quantity,
+                products[i].expiryDate);
+    }
+
+    // Write footer
+    fprintf(file, "===========================================================================================\n");
+    fprintf(file, "Total Products: %d\n", productCount);
+
+    fclose(file);
+}
+
+void loadProductsFromFile()
+{
+    FILE *file = fopen("products.txt", "r");
+    if (file == NULL)
+    {
+        return; // File doesn't exist yet
+    }
+
+    productCount = 0;
+    char line[200];
+
+    // Skip header lines
+    for (int i = 0; i < 3; i++)
+    {
+        fgets(line, sizeof(line), file);
+    }
+
+    // Read products
+    while (fgets(line, sizeof(line), file))
+    {
+        // Check if line is footer
+        if (strstr(line, "=====") != NULL || strstr(line, "Total Products:") != NULL)
+        {
+            continue;
+        }
+
+        Product p;
+        if (sscanf(line, "%d | %49[^|] | %29[^|] | %f | %d | %14[^\n]",
+                   &p.id, p.name, p.category, &p.price, &p.quantity, p.expiryDate) >= 5)
+        {
+
+            // Trim spaces
+            p.name[strcspn(p.name, " ")] = '\0';
+            p.category[strcspn(p.category, " ")] = '\0';
+
+            if (productCount >= productCapacity)
+            {
+                productCapacity *= 2;
+                products = (Product *)realloc(products, productCapacity * sizeof(Product));
+            }
+            products[productCount] = p;
+            productCount++;
+        }
+    }
+
+    fclose(file);
+}
+
+void saveCustomersToFile()
+{
+    FILE *file = fopen("customers.txt", "w");
+    if (file == NULL)
+    {
+        printf("Error saving customers to file!\n");
+        return;
+    }
+
+    fprintf(file, "==========================================================================================================\n");
+    fprintf(file, "ID    | Name                          | Age | Phone          | Total Spent | Password\n");
+    fprintf(file, "==========================================================================================================\n");
+
+    for (int i = 0; i < customerCount; i++)
+    {
+        fprintf(file, "%-5d | %-30s | %-3d | %-15s | %-11.2f | %-20s\n",
+                customers[i].id,
+                customers[i].name,
+                customers[i].age,
+                customers[i].phone,
+                customers[i].totalSpent,
+                customers[i].password); // Save password
+    }
+
+    fprintf(file, "==========================================================================================================\n");
+    fprintf(file, "Total Customers: %d\n", customerCount);
+
+    fclose(file);
+}
+
+void loadCustomersFromFile()
+{
+    FILE *file = fopen("customers.txt", "r");
+    if (file == NULL)
+    {
+        return;
+    }
+
+    customerCount = 0;
+    char line[200];
+
+    // Skip header (3 lines)
+    for (int i = 0; i < 3; i++)
+    {
+        fgets(line, sizeof(line), file);
+    }
+
+    while (fgets(line, sizeof(line), file))
+    {
+        if (strstr(line, "=====") != NULL || strstr(line, "Total Customers:") != NULL)
+        {
+            continue;
+        }
+
+        Customer c;
+        // Parse with password
+        if (sscanf(line, "%d | %49[^|] | %d | %14[^|] | %f | %19[^\n]",
+                   &c.id, c.name, &c.age, c.phone, &c.totalSpent, c.password) >= 5)
+        {
+
+            // Trim spaces
+            int len = strlen(c.name);
+            while (len > 0 && c.name[len - 1] == ' ')
+                c.name[--len] = '\0';
+
+            len = strlen(c.phone);
+            while (len > 0 && c.phone[len - 1] == ' ')
+                c.phone[--len] = '\0';
+
+            len = strlen(c.password);
+            while (len > 0 && c.password[len - 1] == ' ')
+                c.password[--len] = '\0';
+
+            if (customerCount >= customerCapacity)
+            {
+                customerCapacity *= 2;
+                customers = (Customer *)realloc(customers, customerCapacity * sizeof(Customer));
+            }
+            customers[customerCount] = c;
+            customerCount++;
+        }
+    }
+
+    fclose(file);
+}
+
+void loadAllData()
+{
+    loadProductsFromFile();
+    loadCustomersFromFile();
+}
+
+void saveAllData()
+{
+    saveProductsToFile();
+    saveCustomersToFile();
+}
+
+
+// ==================== UTILITY FUNCTIONS ====================
+int getNextProductId()
+{
+    int maxId = 1000;
+    for (int i = 0; i < productCount; i++)
+    {
+        if (products[i].id > maxId)
+        {
+            maxId = products[i].id;
+        }
+    }
+    return maxId + 1;
+}
+
+int getNextCustomerId()
+{
+    int maxId = 2000;
+    for (int i = 0; i < customerCount; i++)
+    {
+        if (customers[i].id > maxId)
+        {
+            maxId = customers[i].id;
+        }
+    }
+    return maxId + 1;
+}
+
+int findProductById(int id)
+{
+    for (int i = 0; i < productCount; i++)
+    {
+        if (products[i].id == id)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
+int findCustomerById(int id)
+{
+    for (int i = 0; i < customerCount; i++)
+    {
+        if (customers[i].id == id)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
+// ==================== CUSTOMER MENU FUNCTIONS ====================
+void viewCustomerPurchaseHistory()
+{
+    printHeader("MY PURCHASE HISTORY");
+    printf("Your purchase history will be displayed here.\n");
+    printf("Bill generated successfully!\n");
+    pressToContinue();
+}
+
+void viewCustomerProfile()
+{
+    printHeader("MY PROFILE");
+
+    int index = findCustomerById(currentUserId);
+    if (index != -1)
+    {
+        printf("Customer ID: %d\n", customers[index].id);
+        printf("Name: %s\n", customers[index].name);
+        printf("Age: %d\n", customers[index].age);
+        printf("Phone: %s\n", customers[index].phone);
+        printf("Total Spent: %.2f\n", customers[index].totalSpent);
+    }
+    else
+    {
+        printf("Customer information not found!\n");
+    }
+    pressToContinue();
+}
+
+// ==================== BILLING FUNCTION ====================
+void generateBill()
+{
+    printHeader("GENERATE BILL");
+    printf("Bill generated successfully!\n");
+    printf("Thank you for your purchase!\n");
+    pressToContinue();
+}
+
+// ==================== ADMIN FUNCTIONS ====================
+void customerManagement()
+{
+    printHeader("CUSTOMER MANAGEMENT");
+    printf("All registered customers will be displayed here.\n");
+    pressToContinue();
+}
+
+void salesReport()
+{
+    printHeader("SALES REPORT");
+    printf("Sales report will be displayed here.\n");
+    pressToContinue();
+}
+
+void inventoryReport()
+{
+    printHeader("INVENTORY REPORT");
+    printf("Inventory report will be displayed here.\n");
+    pressToContinue();
+}
+
+void viewDataFiles()
+{
+    printHeader("VIEW DATA FILES");
+    printf("Data files will be displayed here.\n");
+    pressToContinue();
+}

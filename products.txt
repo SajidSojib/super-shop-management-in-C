@@ -1,0 +1,20 @@
+===========================================================================================
+ID    | Name                          | Category        | Price    | Qty  | Expiry Date
+===========================================================================================
+1001  | Coca Cola 1L                  | Beverages       | 80.00    | 50   | 31/12/2026
+1002  | Pepsi 1.5L                    | Beverages       | 90.00    | 45   | 30/06/2027
+1003  | Lay's Potato Chips            | Snacks          | 30.00    | 100  | 15/03/2026
+1004  | Dairy Milk Chocolate          | Confectionery   | 50.00    | 75   | 30/09/2027
+1005  | Sunflower Oil 1L              | Cooking Oil     | 180.00   | 30   | 31/12/2026
+1006  | Basmati Rice 5kg              | Grocery         | 550.00   | 25   | 31/12/2027
+1007  | ACI Pure Salt 1kg             | Grocery         | 40.00    | 60   | 31/12/2027
+1008  | Pran Tomato Ketchup           | Condiments      | 120.00   | 40   | 30/06/2026
+1009  | Fresh Eggs (12 pieces)        | Dairy           | 140.00   | 20   | 10/04/2026
+1010  | Milk Vita 1L                  | Dairy           | 70.00    | 35   | 05/04/2026
+1011  | Maggi Noodles                 | Instant Food    | 25.00    | 85   | 30/09/2027
+1012  | Lifebuoy Soap                 | Toiletries      | 45.00    | 55   | 31/12/2027
+1013  | Closeup Toothpaste            | Toiletries      | 85.00    | 40   | 30/11/2026
+1014  | Good Morning Biscuit          | Bakery          | 20.00    | 90   | 15/05/2026
+1015  | Pran Juice 250ml              | Beverages       | 35.00    | 65   | 30/06/2027
+===========================================================================================
+Total Products: 15
