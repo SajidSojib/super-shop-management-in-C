@@ -4,7 +4,6 @@
 #include <ctype.h>
 #include <time.h>
 
-
 // Structure Definitions
 typedef struct
 {
@@ -20,8 +19,10 @@ typedef struct
 {
     int id;
     char name[50];
+    int age;
     char phone[15];
     float totalSpent;
+    char password[20];
 } Customer;
 
 typedef struct
@@ -44,19 +45,23 @@ int saleCount = 0;
 int productCapacity = 10;
 int customerCapacity = 10;
 int saleCapacity = 10;
+int currentUserId = -1; // -1 means not logged in, 0 means admin, >0 means customer ID
 
 // Function Prototypes
 void initializeSystem();
-void mainMenu();
+void loginMenu();
+void adminLogin();
+void customerLogin();
+void customerRegister();
+void adminMenu();
+void customerMenu();
+void mainMenu(); // Renamed from previous mainMenu to adminMenu
 void productManagement();
 void billingSystem();
 void customerManagement();
 void inventoryReport();
 void salesReport();
 void viewDataFiles();
-void viewProductsFile();
-void viewCustomersFile();
-void viewSalesFile();
 
 // Product Management Functions
 void addProduct();
@@ -72,3 +77,10 @@ void addCustomer();
 void viewCustomers();
 void saveCustomersToFile();
 void loadCustomersFromFile();
+
+// Billing Functions
+void generateBill();
+void addToCart(int *cartIds, int *cartQuantities, float *cartPrices, int *itemCount);
+void calculateBill(int *cartIds, int *cartQuantities, float *cartPrices, int itemCount, int customerId, char *customerName);
+void saveSaleToFile(Sale sale);
+void loadSalesFromFile();
