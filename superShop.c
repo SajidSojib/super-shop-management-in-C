@@ -47,6 +47,23 @@ int productCapacity = 10;
 int customerCapacity = 10;
 int saleCapacity = 10;
 int currentUserId = -1; // -1 means not logged in, 0 means admin, >0 means customer ID
+char *categories[] = {
+    "Beverages",
+    "Snacks",
+    "Dairy",
+    "Grocery",
+    "Fruits",
+    "Vegetables",
+    "Meat",
+    "Fish",
+    "Bakery",
+    "Toiletries",
+    "Cleaning",
+    "Frozen Food",
+    "Baby Care",
+    "Pet Care",
+    "Stationery"};
+int categoryCount = 15;
 
 // Function Prototypes
 void initializeSystem();
@@ -511,6 +528,51 @@ void customerMenu()
             currentUserId = -1;
             printf("\nLogged out successfully!\n");
             pressToContinue();
+            return;
+        default:
+            printf("\nInvalid choice! Please try again.\n");
+            pressToContinue();
+        }
+    } while (1);
+}
+
+
+// product management
+void productManagement()
+{
+    int choice;
+
+    do
+    {
+        printHeader("PRODUCT MANAGEMENT");
+        printf("1. Add New Product\n");
+        printf("2. View All Products\n");
+        printf("3. Update Product\n");
+        printf("4. Delete Product\n");
+        printf("5. Search Product\n");
+        printf("6. Back to Admin Menu\n");
+        printf("\nEnter your choice (1-6): ");
+        scanf("%d", &choice);
+        clearInputBuffer();
+
+        switch (choice)
+        {
+        case 1:
+            addProduct();
+            break;
+        case 2:
+            viewProducts();
+            break;
+        case 3:
+            updateProduct();
+            break;
+        case 4:
+            deleteProduct();
+            break;
+        case 5:
+            searchProduct();
+            break;
+        case 6:
             return;
         default:
             printf("\nInvalid choice! Please try again.\n");
