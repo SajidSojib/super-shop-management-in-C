@@ -33,3 +33,14 @@ typedef struct
     float totalAmount;
     int itemCount;
 } Sale;
+
+// Global variables
+Product *products = NULL;
+Customer *customers = NULL;
+Sale *sales = NULL;
+int productCount = 0;
+int customerCount = 0;
+int saleCount = 0;
+int productCapacity = 10;
+int customerCapacity = 10;
+int saleCapacity = 10;
