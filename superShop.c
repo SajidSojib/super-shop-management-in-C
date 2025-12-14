@@ -690,4 +690,155 @@ void viewProducts()
     pressToContinue();
 }
 
+void updateProduct()
+{
+    printHeader("UPDATE PRODUCT");
 
+    if (productCount == 0)
+    {
+        printf("No products available to update!\n");
+        pressToContinue();
+        return;
+    }
+
+    int id, index;
+    printf("Enter Product ID to update: ");
+    scanf("%d", &id);
+    clearInputBuffer();
+
+    index = findProductById(id);
+
+    if (index == -1)
+    {
+        printf("Product with ID %d not found!\n", id);
+        pressToContinue();
+        return;
+    }
+
+    printf("\nCurrent Details of Product ID %d:\n", id);
+    printf("1. Name: %s\n", products[index].name);
+    printf("2. Category: %s\n", products[index].category);
+    printf("3. Price: %.2f\n", products[index].price);
+    printf("4. Quantity: %d\n", products[index].quantity);
+    printf("5. Expiry Date: %s\n", products[index].expiryDate);
+
+    printf("\nWhich field do you want to update?\n");
+    printf("1. Name\n");
+    printf("2. Category\n");
+    printf("3. Price\n");
+    printf("4. Quantity\n");
+    printf("5. Expiry Date\n");
+    printf("6. Update All Fields\n");
+    printf("7. Cancel\n");
+
+    int choice;
+    printf("\nEnter your choice (1-7): ");
+    scanf("%d", &choice);
+    clearInputBuffer();
+
+    switch (choice)
+    {
+    case 1: // Update Name
+        printf("Enter new Product Name (current: %s): ", products[index].name);
+        fgets(products[index].name, 50, stdin);
+        products[index].name[strcspn(products[index].name, "\n")] = 0;
+        break;
+
+    case 2: // Update Category
+        printf("\nAvailable Categories:\n");
+        for (int i = 0; i < categoryCount; i++)
+        {
+            printf("%2d. %s\n", i + 1, categories[i]);
+        }
+        int catChoice;
+        do
+        {
+            printf("\nSelect new Category (1-%d, current: %s): ", categoryCount, products[index].category);
+            scanf("%d", &catChoice);
+            clearInputBuffer();
+
+            if (catChoice < 1 || catChoice > categoryCount)
+            {
+                printf("Invalid choice! Please select between 1 and %d.\n", categoryCount);
+            }
+            else
+            {
+                strcpy(products[index].category, categories[catChoice - 1]);
+                break;
+            }
+        } while (1);
+        break;
+
+    case 3: // Update Price
+        printf("Enter new Price (current: %.2f): ", products[index].price);
+        scanf("%f", &products[index].price);
+        clearInputBuffer();
+        break;
+
+    case 4: // Update Quantity
+        printf("Enter new Quantity (current: %d): ", products[index].quantity);
+        scanf("%d", &products[index].quantity);
+        clearInputBuffer();
+        break;
+
+    case 5: // Update Expiry Date
+        printf("Enter new Expiry Date (DD/MM/YYYY) (current: %s): ", products[index].expiryDate);
+        fgets(products[index].expiryDate, 15, stdin);
+        products[index].expiryDate[strcspn(products[index].expiryDate, "\n")] = 0;
+        break;
+
+    case 6: // Update All
+        printf("Enter new Product Name (current: %s): ", products[index].name);
+        fgets(products[index].name, 50, stdin);
+        products[index].name[strcspn(products[index].name, "\n")] = 0;
+
+        printf("\nAvailable Categories:\n");
+        for (int i = 0; i < categoryCount; i++)
+        {
+            printf("%2d. %s\n", i + 1, categories[i]);
+        }
+        do
+        {
+            printf("\nSelect new Category (1-%d, current: %s): ", categoryCount, products[index].category);
+            scanf("%d", &catChoice);
+            clearInputBuffer();
+
+            if (catChoice < 1 || catChoice > categoryCount)
+            {
+                printf("Invalid choice! Please select between 1 and %d.\n", categoryCount);
+            }
+            else
+            {
+                strcpy(products[index].category, categories[catChoice - 1]);
+                break;
+            }
+        } while (1);
+
+        printf("Enter new Price (current: %.2f): ", products[index].price);
+        scanf("%f", &products[index].price);
+        clearInputBuffer();
+
+        printf("Enter new Quantity (current: %d): ", products[index].quantity);
+        scanf("%d", &products[index].quantity);
+        clearInputBuffer();
+
+        printf("Enter new Expiry Date (DD/MM/YYYY) (current: %s): ", products[index].expiryDate);
+        fgets(products[index].expiryDate, 15, stdin);
+        products[index].expiryDate[strcspn(products[index].expiryDate, "\n")] = 0;
+        break;
+
+    case 7: // Cancel
+        printf("Update cancelled.\n");
+        pressToContinue();
+        return;
+
+    default:
+        printf("Invalid choice! Update cancelled.\n");
+        pressToContinue();
+        return;
+    }
+
+    printf("\nProduct updated successfully!\n");
+    saveProductsToFile();
+    pressToContinue();
+}
