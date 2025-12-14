@@ -57,3 +57,12 @@ void viewDataFiles();
 void viewProductsFile();
 void viewCustomersFile();
 void viewSalesFile();
+
+// Product Management Functions
+void addProduct();
+void viewProducts();
+void updateProduct();
+void deleteProduct();
+void searchProduct();
+void saveProductsToFile();
+void loadProductsFromFile();
