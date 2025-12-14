@@ -84,3 +84,14 @@ void addToCart(int *cartIds, int *cartQuantities, float *cartPrices, int *itemCo
 void calculateBill(int *cartIds, int *cartQuantities, float *cartPrices, int itemCount, int customerId, char *customerName);
 void saveSaleToFile(Sale sale);
 void loadSalesFromFile();
+
+// Utility Functions
+int getNextProductId();
+int getNextCustomerId();
+int getNextBillNo();
+int findProductById(int id);
+int findCustomerById(int id);
+int findCustomerByPhone(char *phone);
+void clearInputBuffer();
+void printHeader(char *title);
+void pressToContinue();
