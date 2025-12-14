@@ -99,3 +99,45 @@ void pressToContinue();
 // File Operations
 void saveAllData();
 void loadAllData();
+
+int main()
+{
+    initializeSystem();
+    loadAllData();
+    loginMenu();
+    saveAllData();
+
+    free(products);
+    free(customers);
+    free(sales);
+
+    printf("\nThank you for using Super Shop Management System!\n");
+    return 0;
+}
+
+void initializeSystem()
+{
+    // Initialize product array
+    products = (Product *)malloc(productCapacity * sizeof(Product));
+    if (!products)
+    {
+        printf("Memory allocation failed for products!\n");
+        exit(1);
+    }
+
+    // Initialize customer array
+    customers = (Customer *)malloc(customerCapacity * sizeof(Customer));
+    if (!customers)
+    {
+        printf("Memory allocation failed for customers!\n");
+        exit(1);
+    }
+
+    // Initialize sales array
+    sales = (Sale *)malloc(saleCapacity * sizeof(Sale));
+    if (!sales)
+    {
+        printf("Memory allocation failed for sales!\n");
+        exit(1);
+    }
+}
