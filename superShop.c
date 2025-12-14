@@ -842,3 +842,62 @@ void updateProduct()
     saveProductsToFile();
     pressToContinue();
 }
+
+void deleteProduct()
+{
+    printHeader("DELETE PRODUCT");
+
+    if (productCount == 0)
+    {
+        printf("No products available to delete!\n");
+        pressToContinue();
+        return;
+    }
+
+    int id, index;
+    printf("Enter Product ID to delete: ");
+    scanf("%d", &id);
+    clearInputBuffer();
+
+    index = findProductById(id);
+
+    if (index == -1)
+    {
+        printf("Product with ID %d not found!\n", id);
+        pressToContinue();
+        return;
+    }
+
+    printf("\nProduct Details:\n");
+    printf("ID: %d\n", products[index].id);
+    printf("Name: %s\n", products[index].name);
+    printf("Category: %s\n", products[index].category);
+    printf("Price: %.2f\n", products[index].price);
+    printf("Quantity: %d\n", products[index].quantity);
+    printf("Expiry Date: %s\n", products[index].expiryDate);
+
+    char confirm;
+    printf("\nAre you sure you want to delete this product? (y/n): ");
+    scanf("%c", &confirm);
+    clearInputBuffer();
+
+    if (confirm == 'y' || confirm == 'Y')
+    {
+        // Shift all products after the deleted one
+        for (int i = index; i < productCount - 1; i++)
+        {
+            products[i] = products[i + 1];
+        }
+        productCount--;
+
+        printf("\nProduct deleted successfully!\n");
+        saveProductsToFile();
+    }
+    else
+    {
+        printf("\nDeletion cancelled.\n");
+    }
+
+    pressToContinue();
+}
+
