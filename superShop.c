@@ -4,7 +4,7 @@
 #include <ctype.h>
 #include <time.h>
 
-// Structure Definitions
+// ============== STRUCTURE DEFINITIONS ==============
 typedef struct
 {
     int id;
@@ -12,7 +12,7 @@ typedef struct
     char category[30];
     float price;
     int quantity;
-    char expiryDate[15];
+    char expiryDate[15]; // Display only, no tracking
 } Product;
 
 typedef struct
@@ -35,7 +35,7 @@ typedef struct
     int itemCount;
 } Sale;
 
-// Global variables
+// ============== GLOBAL VARIABLES ==============
 char adminPassword[50] = "admin123";
 Product *products = NULL;
 Customer *customers = NULL;
@@ -46,7 +46,7 @@ int saleCount = 0;
 int productCapacity = 10;
 int customerCapacity = 10;
 int saleCapacity = 10;
-int currentUserId = -1; // -1 means not logged in, 0 means admin, >0 means customer ID
+int currentUserId = -1;
 char *categories[] = {
     "Beverages",
     "Snacks",
@@ -65,67 +65,67 @@ char *categories[] = {
     "Stationery"};
 int categoryCount = 15;
 
-// Function Prototypes
+// ============== FUNCTION PROTOTYPES ==============
+// Utility Functions
 void initializeSystem();
+void printHeader(char *title);
+void clearInputBuffer();
+void pressToContinue();
+
+// Authentication Module
 void loginMenu();
 void adminLogin();
 void changeAdminPassword();
 void adminMenu();
-int customerLogin();
 void customerLoginMenu();
+int customerLogin();
 void customerRegister();
 void customerMenu();
-void mainMenu(); // Renamed from previous mainMenu to adminMenu
-void productManagement();
-void billingSystem();
-void customerManagement();
-void inventoryReport();
-void salesReport();
-void viewDataFiles();
 
-// Product Management Functions
+// Product Management Module
+void productManagement();
 void addProduct();
 void viewProducts();
 void updateProduct();
 void deleteProduct();
 void searchProduct();
-void saveProductsToFile();
-void loadProductsFromFile();
-
-// Customer Management Functions
-void addCustomer();
-void viewCustomers();
-void saveCustomersToFile();
-void loadCustomersFromFile();
-
-// Billing Functions
-void generateBill();
-void addToCart(int *cartIds, int *cartQuantities, float *cartPrices, int *itemCount);
-void calculateBill(int *cartIds, int *cartQuantities, float *cartPrices, int itemCount, int customerId, char *customerName);
-void saveSaleToFile(Sale sale);
-void loadSalesFromFile();
-
-// Utility Functions
-int getNextProductId();
-int getNextCustomerId();
-int getNextBillNo();
-int findProductById(int id);
-int findCustomerById(int id);
-int findCustomerByPhone(char *phone);
-void clearInputBuffer();
-void printHeader(char *title);
-void pressToContinue();
 void searchByID();
 void searchByName();
 void searchByCategory();
 void searchByPriceRange();
+int getNextProductId();
+int findProductById(int id);
+void saveProductsToFile();
+void loadProductsFromFile();
+
+// Customer Management Module
+void customerManagement();
+void viewCustomers();
+int getNextCustomerId();
+int findCustomerById(int id);
+int findCustomerByPhone(char *phone);
+void saveCustomersToFile();
+void loadCustomersFromFile();
 void viewCustomerPurchaseHistory();
 void viewCustomerProfile();
+void editCustomerProfile(int index);
+void changeCustomerPassword(int index);
 
-// File Operations
+// Billing Module
+void generateBill();
+int getNextBillNo();
+void saveSaleToFile(Sale sale);
+void loadSalesFromFile();
+
+// Reporting Module
+void salesReport();
+void inventoryReport();
+
+// Data Management
 void saveAllData();
 void loadAllData();
 
+// ============== MAIN FUNCTION ==============
 int main()
 {
     initializeSystem();
@@ -141,9 +141,9 @@ int main()
     return 0;
 }
 
+// ============== UTILITY FUNCTIONS ==============
 void initializeSystem()
 {
-    // Initialize product array
     products = (Product *)malloc(productCapacity * sizeof(Product));
     if (!products)
     {
@@ -151,7 +151,6 @@ void initializeSystem()
         exit(1);
     }
 
-    // Initialize customer array
     customers = (Customer *)malloc(customerCapacity * sizeof(Customer));
     if (!customers)
     {
@@ -159,7 +158,6 @@ void initializeSystem()
         exit(1);
     }
 
-    // Initialize sales array
     sales = (Sale *)malloc(saleCapacity * sizeof(Sale));
     if (!sales)
     {
@@ -170,11 +168,10 @@ void initializeSystem()
 
 void printHeader(char *title)
 {
-// Clear screen command for different operating systems
 #ifdef _WIN32
-    system("cls"); // Windows
+    system("cls");
 #else
-    system("clear"); // Mac/Linux
+    system("clear");
 #endif
 
     printf("\n========================================\n");
@@ -196,6 +193,7 @@ void pressToContinue()
     getchar();
 }
 
+// ============== AUTHENTICATION MODULE ==============
 void loginMenu()
 {
     int choice;
@@ -217,7 +215,7 @@ void loginMenu()
             break;
         case 2:
             customerLoginMenu();
-            break; // Changed to customerLoginMenu
+            break;
         case 3:
             printf("\nExiting system...\n");
             return;
@@ -225,10 +223,88 @@ void loginMenu()
             printf("\nInvalid choice! Please try again.\n");
             pressToContinue();
         }
-    } while (1); // Infinite loop until exit
+    } while (1);
 }
 
-// customer login
+// ============== ADMIN AUTHENTICATION ==============
+void adminLogin()
+{
+    char password[50];
+
+    printHeader("ADMIN LOGIN");
+    printf("Enter Admin Password: ");
+    fgets(password, 50, stdin);
+    password[strcspn(password, "\n")] = 0;
+
+    if (strcmp(password, adminPassword) == 0)
+    {
+        currentUserId = 0;
+        printf("\nLogin successful! Welcome Admin.\n");
+        pressToContinue();
+        adminMenu();
+    }
+    else
+    {
+        printf("\nIncorrect password! Returning to login menu.\n");
+        pressToContinue();
+    }
+}
+
+void changeAdminPassword()
+{
+    printf("Enter new admin password: ");
+    fgets(adminPassword, 50, stdin);
+    adminPassword[strcspn(adminPassword, "\n")] = 0;
+    printf("Password changed successfully!\n");
+}
+
+void adminMenu()
+{
+    int choice;
+
+    do
+    {
+        printHeader("ADMIN DASHBOARD");
+        printf("1. Product Management\n");
+        printf("2. Customer Management\n");
+        printf("3. View Sales Report\n");
+        printf("4. View Inventory Report\n");
+        printf("5. Change Admin Password\n"); // Removed "View Data Files" option
+        printf("6. Logout\n");
+        printf("\nEnter your choice (1-6): "); // Changed from 1-7 to 1-6
+        scanf("%d", &choice);
+        clearInputBuffer();
+
+        switch (choice)
+        {
+        case 1:
+            productManagement();
+            break;
+        case 2:
+            customerManagement();
+            break;
+        case 3:
+            salesReport();
+            break;
+        case 4:
+            inventoryReport();
+            break;
+        case 5:
+            changeAdminPassword();
+            break;
+        case 6: // Changed from case 7
+            currentUserId = -1;
+            printf("\nLogged out successfully!\n");
+            pressToContinue();
+            return;
+        default:
+            printf("\nInvalid choice! Please try again.\n");
+            pressToContinue();
+        }
+    } while (1);
+}
+
+// ============== CUSTOMER AUTHENTICATION ==============
 void customerLoginMenu()
 {
     int choice;
@@ -248,14 +324,12 @@ void customerLoginMenu()
         case 1:
             if (customerLogin() == 1)
             {
-                customerMenu(); // Successful login
-                return;         // Return after customer menu
+                customerMenu();
+                return;
             }
-            // If login failed, show this menu again
             break;
         case 2:
             customerRegister();
-            // After registration, go to customer menu
             if (currentUserId > 0)
             {
                 customerMenu();
@@ -263,7 +337,7 @@ void customerLoginMenu()
             }
             break;
         case 3:
-            return; // Back to main login
+            return;
         default:
             printf("\nInvalid choice! Please try again.\n");
             pressToContinue();
@@ -275,7 +349,6 @@ int customerLogin()
 {
     char phone[15];
     char password[20];
-    int found = 0;
 
     printHeader("CUSTOMER LOGIN");
 
@@ -287,35 +360,27 @@ int customerLogin()
     fgets(password, 20, stdin);
     password[strcspn(password, "\n")] = 0;
 
-    // Search for customer with matching phone and password
     for (int i = 0; i < customerCount; i++)
     {
         if (strcmp(customers[i].phone, phone) == 0 &&
             strcmp(customers[i].password, password) == 0)
         {
-
             currentUserId = customers[i].id;
             printf("\nLogin successful! Welcome %s.\n", customers[i].name);
             pressToContinue();
-            found = 1;
-            return 1; // Success
+            return 1;
         }
     }
 
-    if (!found)
-    {
-        printf("\nLogin failed! Incorrect phone number or password.\n");
-        pressToContinue();
-    }
-
-    return 0; // Failed
+    printf("\nLogin failed! Incorrect phone number or password.\n");
+    pressToContinue();
+    return 0;
 }
 
 void customerRegister()
 {
     printHeader("CUSTOMER REGISTRATION");
 
-    // Check if we need to expand array
     if (customerCount >= customerCapacity)
     {
         customerCapacity *= 2;
@@ -326,7 +391,6 @@ void customerRegister()
     newCustomer.id = getNextCustomerId();
     newCustomer.totalSpent = 0;
 
-    // Get customer details
     printf("Enter Name: ");
     fgets(newCustomer.name, 50, stdin);
     newCustomer.name[strcspn(newCustomer.name, "\n")] = 0;
@@ -335,7 +399,6 @@ void customerRegister()
     scanf("%d", &newCustomer.age);
     clearInputBuffer();
 
-    // Check if phone already exists
     int phoneExists;
     do
     {
@@ -344,7 +407,6 @@ void customerRegister()
         fgets(newCustomer.phone, 15, stdin);
         newCustomer.phone[strcspn(newCustomer.phone, "\n")] = 0;
 
-        // Check if phone already registered
         for (int i = 0; i < customerCount; i++)
         {
             if (strcmp(customers[i].phone, newCustomer.phone) == 0)
@@ -356,7 +418,6 @@ void customerRegister()
         }
     } while (phoneExists);
 
-    // Get password
     char password1[20], password2[20];
     do
     {
@@ -383,11 +444,8 @@ void customerRegister()
         }
     } while (1);
 
-    // Add customer to array
     customers[customerCount] = newCustomer;
     customerCount++;
-
-    // Set as logged in
     currentUserId = newCustomer.id;
 
     printf("\nRegistration successful!\n");
@@ -398,93 +456,6 @@ void customerRegister()
     pressToContinue();
 }
 
-// admin login
-void adminLogin()
-{
-    char password[50];
-
-    printHeader("ADMIN LOGIN");
-    printf("Enter Admin Password: ");
-    fgets(password, 50, stdin);
-    password[strcspn(password, "\n")] = 0; // Remove newline
-
-    // Check password
-    if (strcmp(password, adminPassword) == 0)
-    {
-        currentUserId = 0; // 0 means admin
-        printf("\nLogin successful! Welcome Admin.\n");
-        pressToContinue();
-        adminMenu();
-    }
-    else
-    {
-        printf("\nIncorrect password! Returning to login menu.\n");
-        pressToContinue();
-    }
-}
-
-void changeAdminPassword()
-{
-    printf("Enter new admin password: ");
-    fgets(adminPassword, 50, stdin);
-    adminPassword[strcspn(adminPassword, "\n")] = 0;
-    printf("Password changed successfully!\n");
-}
-
-
-// admin menu
-void adminMenu()
-{
-    int choice;
-
-    do
-    {
-        printHeader("ADMIN DASHBOARD");
-        printf("1. Product Management\n");
-        printf("2. Customer Management\n");
-        printf("3. View Sales Report\n");
-        printf("4. View Inventory Report\n");
-        printf("5. View Data Files\n");
-        printf("6. Change Admin Password\n");
-        printf("7. Logout\n");
-        printf("\nEnter your choice (1-7): ");
-        scanf("%d", &choice);
-        clearInputBuffer();
-
-        switch (choice)
-        {
-        case 1:
-            productManagement();
-            break;
-        case 2:
-            customerManagement();
-            break;
-        case 3:
-            salesReport();
-            break;
-        case 4:
-            inventoryReport();
-            break;
-        case 5:
-            viewDataFiles();
-            break;
-        case 6:
-            changeAdminPassword();
-            break;
-        case 7:
-            currentUserId = -1;
-            printf("\nLogged out successfully!\n");
-            pressToContinue();
-            return;
-        default:
-            printf("\nInvalid choice! Please try again.\n");
-            pressToContinue();
-        }
-    } while (1);
-}
-
-
-// customer menu
 void customerMenu()
 {
     int choice;
@@ -542,8 +513,7 @@ void customerMenu()
     } while (1);
 }
 
-
-// product management
+// ============== PRODUCT MANAGEMENT MODULE ==============
 void productManagement()
 {
     int choice;
@@ -587,11 +557,24 @@ void productManagement()
     } while (1);
 }
 
+// ---- ADD PRODUCT FUNCTIONS ----
+int getNextProductId()
+{
+    int maxId = 1000;
+    for (int i = 0; i < productCount; i++)
+    {
+        if (products[i].id > maxId)
+        {
+            maxId = products[i].id;
+        }
+    }
+    return maxId + 1;
+}
+
 void addProduct()
 {
     printHeader("ADD NEW PRODUCT");
 
-    // Check if we need to expand array
     if (productCount >= productCapacity)
     {
         productCapacity *= 2;
@@ -605,7 +588,6 @@ void addProduct()
     fgets(newProduct.name, 50, stdin);
     newProduct.name[strcspn(newProduct.name, "\n")] = 0;
 
-    // Show categories
     printf("\nAvailable Categories:\n");
     for (int i = 0; i < categoryCount; i++)
     {
@@ -637,11 +619,10 @@ void addProduct()
     scanf("%d", &newProduct.quantity);
     clearInputBuffer();
 
-    printf("Enter Expiry Date (DD/MM/YYYY): ");
+    printf("Enter Expiry Date (DD/MM/YYYY) [Display Only]: ");
     fgets(newProduct.expiryDate, 15, stdin);
     newProduct.expiryDate[strcspn(newProduct.expiryDate, "\n")] = 0;
 
-    // Add to array
     products[productCount] = newProduct;
     productCount++;
 
@@ -651,11 +632,11 @@ void addProduct()
     printf("Category: %s\n", newProduct.category);
     printf("Price: %.2f | Quantity: %d\n", newProduct.price, newProduct.quantity);
 
-    // Save to file
     saveProductsToFile();
     pressToContinue();
 }
 
+// ---- VIEW PRODUCTS FUNCTIONS ----
 void viewProducts()
 {
     printHeader("ALL PRODUCTS");
@@ -685,7 +666,6 @@ void viewProducts()
     printf("===========================================================================================\n");
     printf("Total Products: %d\n", productCount);
 
-    // Calculate and show inventory value
     float totalValue = 0;
     for (int i = 0; i < productCount; i++)
     {
@@ -694,6 +674,19 @@ void viewProducts()
     printf("Total Inventory Value: %.2f\n", totalValue);
 
     pressToContinue();
+}
+
+// ---- UPDATE PRODUCT FUNCTIONS ----
+int findProductById(int id)
+{
+    for (int i = 0; i < productCount; i++)
+    {
+        if (products[i].id == id)
+        {
+            return i;
+        }
+    }
+    return -1;
 }
 
 void updateProduct()
@@ -744,13 +737,13 @@ void updateProduct()
 
     switch (choice)
     {
-    case 1: // Update Name
+    case 1:
         printf("Enter new Product Name (current: %s): ", products[index].name);
         fgets(products[index].name, 50, stdin);
         products[index].name[strcspn(products[index].name, "\n")] = 0;
         break;
 
-    case 2: // Update Category
+    case 2:
         printf("\nAvailable Categories:\n");
         for (int i = 0; i < categoryCount; i++)
         {
@@ -775,25 +768,25 @@ void updateProduct()
         } while (1);
         break;
 
-    case 3: // Update Price
+    case 3:
         printf("Enter new Price (current: %.2f): ", products[index].price);
         scanf("%f", &products[index].price);
         clearInputBuffer();
         break;
 
-    case 4: // Update Quantity
+    case 4:
         printf("Enter new Quantity (current: %d): ", products[index].quantity);
         scanf("%d", &products[index].quantity);
         clearInputBuffer();
         break;
 
-    case 5: // Update Expiry Date
+    case 5:
         printf("Enter new Expiry Date (DD/MM/YYYY) (current: %s): ", products[index].expiryDate);
         fgets(products[index].expiryDate, 15, stdin);
         products[index].expiryDate[strcspn(products[index].expiryDate, "\n")] = 0;
         break;
 
-    case 6: // Update All
+    case 6:
         printf("Enter new Product Name (current: %s): ", products[index].name);
         fgets(products[index].name, 50, stdin);
         products[index].name[strcspn(products[index].name, "\n")] = 0;
@@ -833,7 +826,7 @@ void updateProduct()
         products[index].expiryDate[strcspn(products[index].expiryDate, "\n")] = 0;
         break;
 
-    case 7: // Cancel
+    case 7:
         printf("Update cancelled.\n");
         pressToContinue();
         return;
@@ -849,6 +842,7 @@ void updateProduct()
     pressToContinue();
 }
 
+// ---- DELETE PRODUCT FUNCTIONS ----
 void deleteProduct()
 {
     printHeader("DELETE PRODUCT");
@@ -889,7 +883,6 @@ void deleteProduct()
 
     if (confirm == 'y' || confirm == 'Y')
     {
-        // Shift all products after the deleted one
         for (int i = index; i < productCount - 1; i++)
         {
             products[i] = products[i + 1];
@@ -907,6 +900,7 @@ void deleteProduct()
     pressToContinue();
 }
 
+// ---- SEARCH PRODUCT FUNCTIONS ----
 void searchProduct()
 {
     printHeader("SEARCH PRODUCT");
@@ -1005,14 +999,12 @@ void searchByName()
     int found = 0;
     for (int i = 0; i < productCount; i++)
     {
-        // Case-insensitive search (convert both to lowercase)
         char productNameLower[50];
         char searchTermLower[50];
 
         strcpy(productNameLower, products[i].name);
         strcpy(searchTermLower, searchTerm);
 
-        // Convert to lowercase
         for (int j = 0; productNameLower[j]; j++)
         {
             productNameLower[j] = tolower(productNameLower[j]);
@@ -1134,9 +1126,7 @@ void searchByPriceRange()
     printf("===========================================================================================\n");
 }
 
-
-
-// file handling
+// ---- PRODUCT FILE OPERATIONS ----
 void saveProductsToFile()
 {
     FILE *file = fopen("products.txt", "w");
@@ -1146,12 +1136,10 @@ void saveProductsToFile()
         return;
     }
 
-    // Write header
     fprintf(file, "===========================================================================================\n");
     fprintf(file, "ID    | Name                          | Category        | Price    | Qty  | Expiry Date\n");
     fprintf(file, "===========================================================================================\n");
 
-    // Write products
     for (int i = 0; i < productCount; i++)
     {
         fprintf(file, "%-5d | %-30s | %-15s | %-8.2f | %-4d | %-15s\n",
@@ -1163,7 +1151,6 @@ void saveProductsToFile()
                 products[i].expiryDate);
     }
 
-    // Write footer
     fprintf(file, "===========================================================================================\n");
     fprintf(file, "Total Products: %d\n", productCount);
 
@@ -1175,22 +1162,19 @@ void loadProductsFromFile()
     FILE *file = fopen("products.txt", "r");
     if (file == NULL)
     {
-        return; // File doesn't exist yet
+        return;
     }
 
     productCount = 0;
     char line[200];
 
-    // Skip header lines
     for (int i = 0; i < 3; i++)
     {
         fgets(line, sizeof(line), file);
     }
 
-    // Read products
     while (fgets(line, sizeof(line), file))
     {
-        // Check if line is footer
         if (strstr(line, "=====") != NULL || strstr(line, "Total Products:") != NULL)
         {
             continue;
@@ -1200,8 +1184,6 @@ void loadProductsFromFile()
         if (sscanf(line, "%d | %49[^|] | %29[^|] | %f | %d | %14[^\n]",
                    &p.id, p.name, p.category, &p.price, &p.quantity, p.expiryDate) >= 5)
         {
-
-            // Trim spaces
             p.name[strcspn(p.name, " ")] = '\0';
             p.category[strcspn(p.category, " ")] = '\0';
 
@@ -1218,6 +1200,392 @@ void loadProductsFromFile()
     fclose(file);
 }
 
+// ============== CUSTOMER MANAGEMENT MODULE ==============
+void customerManagement()
+{
+    printHeader("CUSTOMER MANAGEMENT");
+
+    if (customerCount == 0)
+    {
+        printf("No customers registered yet.\n");
+        pressToContinue();
+        return;
+    }
+
+    printf("==========================================================================================================\n");
+    printf("ID    | Name                          | Age | Phone          | Total Spent | Member Since\n");
+    printf("==========================================================================================================\n");
+
+    for (int i = 0; i < customerCount; i++)
+    {
+        int yearsAgo = 2024 - (customers[i].id - 2000);
+
+        printf("%-5d | %-30s | %-3d | %-15s | %-11.2f | %d years\n",
+               customers[i].id,
+               customers[i].name,
+               customers[i].age,
+               customers[i].phone,
+               customers[i].totalSpent,
+               yearsAgo);
+    }
+
+    printf("==========================================================================================================\n");
+    printf("Total Customers: %d\n", customerCount);
+
+    float totalAllSpent = 0;
+    float avgSpent = 0;
+    int maxSpentIndex = 0;
+
+    for (int i = 0; i < customerCount; i++)
+    {
+        totalAllSpent += customers[i].totalSpent;
+        if (customers[i].totalSpent > customers[maxSpentIndex].totalSpent)
+        {
+            maxSpentIndex = i;
+        }
+    }
+
+    if (customerCount > 0)
+    {
+        avgSpent = totalAllSpent / customerCount;
+    }
+
+    printf("\nCustomer Statistics:\n");
+    printf("Total Money Spent by All Customers: %.2f\n", totalAllSpent);
+    printf("Average Spending per Customer: %.2f\n", avgSpent);
+    printf("Top Spender: %s (ID: %d, Spent: %.2f)\n",
+           customers[maxSpentIndex].name,
+           customers[maxSpentIndex].id,
+           customers[maxSpentIndex].totalSpent);
+
+    pressToContinue();
+}
+
+// ---- CUSTOMER UTILITY FUNCTIONS ----
+int getNextCustomerId()
+{
+    int maxId = 2000;
+    for (int i = 0; i < customerCount; i++)
+    {
+        if (customers[i].id > maxId)
+        {
+            maxId = customers[i].id;
+        }
+    }
+    return maxId + 1;
+}
+
+int findCustomerById(int id)
+{
+    for (int i = 0; i < customerCount; i++)
+    {
+        if (customers[i].id == id)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
+int findCustomerByPhone(char *phone)
+{
+    for (int i = 0; i < customerCount; i++)
+    {
+        if (strcmp(customers[i].phone, phone) == 0)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
+void viewCustomerPurchaseHistory()
+{
+    printHeader("MY PURCHASE HISTORY");
+
+    int customerIndex = findCustomerById(currentUserId);
+    if (customerIndex == -1)
+    {
+        printf("Error: Customer information not found!\n");
+        pressToContinue();
+        return;
+    }
+
+    printf("Customer: %s (ID: %d)\n", customers[customerIndex].name, currentUserId);
+    printf("Total Spent: %.2f\n", customers[customerIndex].totalSpent);
+    printf("==========================================================\n\n");
+
+    int customerSales[saleCount];
+    int customerSaleCount = 0;
+    float totalCustomerSpent = 0;
+    int totalItemsBought = 0;
+
+    for (int i = 0; i < saleCount; i++)
+    {
+        if (sales[i].customerId == currentUserId)
+        {
+            customerSales[customerSaleCount] = i;
+            customerSaleCount++;
+            totalCustomerSpent += sales[i].totalAmount;
+            totalItemsBought += sales[i].itemCount;
+        }
+    }
+
+    if (customerSaleCount == 0)
+    {
+        printf("No purchase history found.\n");
+        printf("You haven't made any purchases yet.\n");
+        pressToContinue();
+        return;
+    }
+
+    printf("Your Purchase History (%d bills):\n", customerSaleCount);
+    printf("==================================================================\n");
+    printf("Bill No | Date         | Items | Amount     | Status\n");
+    printf("==================================================================\n");
+
+    for (int i = 0; i < customerSaleCount - 1; i++)
+    {
+        for (int j = 0; j < customerSaleCount - i - 1; j++)
+        {
+            int day1, month1, year1, day2, month2, year2;
+            sscanf(sales[customerSales[j]].date, "%d/%d/%d", &day1, &month1, &year1);
+            sscanf(sales[customerSales[j + 1]].date, "%d/%d/%d", &day2, &month2, &year2);
+
+            if (year1 < year2 ||
+                (year1 == year2 && month1 < month2) ||
+                (year1 == year2 && month1 == month2 && day1 < day2))
+            {
+                int temp = customerSales[j];
+                customerSales[j] = customerSales[j + 1];
+                customerSales[j + 1] = temp;
+            }
+        }
+    }
+
+    for (int i = 0; i < customerSaleCount; i++)
+    {
+        int saleIndex = customerSales[i];
+        char status[20];
+
+        if (sales[saleIndex].totalAmount < 100)
+        {
+            strcpy(status, "Small");
+        }
+        else if (sales[saleIndex].totalAmount < 500)
+        {
+            strcpy(status, "Medium");
+        }
+        else
+        {
+            strcpy(status, "Large");
+        }
+
+        printf("%-7d | %-12s | %-5d | %-10.2f | %-10s\n",
+               sales[saleIndex].billNo,
+               sales[saleIndex].date,
+               sales[saleIndex].itemCount,
+               sales[saleIndex].totalAmount,
+               status);
+    }
+
+    printf("==================================================================\n");
+
+    printf("\nYOUR PURCHASE STATISTICS:\n");
+    printf("==========================\n");
+    printf("Total Bills: %d\n", customerSaleCount);
+    printf("Total Amount Spent: %.2f\n", totalCustomerSpent);
+    printf("Total Items Purchased: %d\n", totalItemsBought);
+    printf("Average Bill Amount: %.2f\n", totalCustomerSpent / customerSaleCount);
+    printf("Average Items per Bill: %.1f\n", (float)totalItemsBought / customerSaleCount);
+
+    // Removed monthly spending pattern for simplification
+
+    printf("\nRECENT PURCHASES (Last 5):\n");
+    printf("===========================\n");
+
+    int displayCount = (customerSaleCount > 5) ? 5 : customerSaleCount;
+    for (int i = 0; i < displayCount; i++)
+    {
+        int saleIndex = customerSales[i];
+        printf("%d. Bill #%d: %.2f (%d items) on %s\n",
+               i + 1,
+               sales[saleIndex].billNo,
+               sales[saleIndex].totalAmount,
+               sales[saleIndex].itemCount,
+               sales[saleIndex].date);
+    }
+
+    printf("\nYOUR LOYALTY STATUS:\n");
+    printf("====================\n");
+
+    char loyaltyLevel[20];
+    float discount = 0;
+
+    if (totalCustomerSpent >= 5000)
+    {
+        strcpy(loyaltyLevel, "GOLD");
+        discount = 10.0;
+    }
+    else if (totalCustomerSpent >= 2000)
+    {
+        strcpy(loyaltyLevel, "SILVER");
+        discount = 5.0;
+    }
+    else if (totalCustomerSpent >= 500)
+    {
+        strcpy(loyaltyLevel, "BRONZE");
+        discount = 2.0;
+    }
+    else
+    {
+        strcpy(loyaltyLevel, "NEW");
+        discount = 0.0;
+    }
+
+    printf("Loyalty Level: %s\n", loyaltyLevel);
+    printf("Discount on Next Purchase: %.1f%%\n", discount);
+
+    pressToContinue();
+}
+
+void viewCustomerProfile()
+{
+    int choice;
+    int customerIndex = findCustomerById(currentUserId);
+
+    if (customerIndex == -1)
+    {
+        printf("Error: Customer information not found!\n");
+        pressToContinue();
+        return;
+    }
+
+    do
+    {
+        printHeader("MY PROFILE");
+
+        printf("PROFILE INFORMATION:\n");
+        printf("====================\n");
+        printf("Customer ID: %d\n", customers[customerIndex].id);
+        printf("Name: %s\n", customers[customerIndex].name);
+        printf("Age: %d\n", customers[customerIndex].age);
+        printf("Phone: %s [Cannot be changed]\n", customers[customerIndex].phone); // Added note
+        printf("Total Spent: %.2f\n\n", customers[customerIndex].totalSpent);
+
+        printf("OPTIONS:\n");
+        printf("1. Edit Profile (Name/Age Only)\n"); // Changed to exclude phone
+        printf("2. Change Password\n");
+        printf("3. Back to Customer Menu\n");
+        printf("\nEnter your choice (1-3): ");
+        scanf("%d", &choice);
+        clearInputBuffer();
+
+        switch (choice)
+        {
+        case 1:
+            editCustomerProfile(customerIndex);
+            break;
+        case 2:
+            changeCustomerPassword(customerIndex);
+            break;
+        case 3:
+            return;
+        default:
+            printf("Invalid choice!\n");
+            pressToContinue();
+        }
+    } while (choice != 3);
+}
+
+void editCustomerProfile(int index)
+{
+    printHeader("EDIT PROFILE");
+
+    printf("Current Profile:\n");
+    printf("Name: %s\n", customers[index].name);
+    printf("Age: %d\n", customers[index].age);
+    printf("Phone: %s [Cannot be changed]\n\n", customers[index].phone); // Added note
+
+    printf("Enter new details (press Enter to keep current):\n\n");
+
+    printf("Enter new Name (current: %s): ", customers[index].name);
+    char newName[50];
+    fgets(newName, 50, stdin);
+    if (strlen(newName) > 1)
+    {
+        newName[strcspn(newName, "\n")] = 0;
+        if (strlen(newName) > 0)
+        {
+            strcpy(customers[index].name, newName);
+            printf("Name updated.\n");
+        }
+    }
+
+    printf("\nEnter new Age (current: %d): ", customers[index].age);
+    char ageStr[10];
+    fgets(ageStr, 10, stdin);
+    if (strlen(ageStr) > 1)
+    {
+        int newAge = atoi(ageStr);
+        if (newAge > 0 && newAge < 120)
+        {
+            customers[index].age = newAge;
+            printf("Age updated.\n");
+        }
+    }
+
+    // Removed phone change functionality as requested
+
+    saveCustomersToFile();
+    printf("\nProfile updated successfully!\n");
+    pressToContinue();
+}
+
+void changeCustomerPassword(int index)
+{
+    printHeader("CHANGE PASSWORD");
+
+    char currentPass[20], newPass1[20], newPass2[20];
+
+    printf("Enter current password: ");
+    fgets(currentPass, 20, stdin);
+    currentPass[strcspn(currentPass, "\n")] = 0;
+
+    if (strcmp(currentPass, customers[index].password) != 0)
+    {
+        printf("Current password is incorrect!\n");
+        pressToContinue();
+        return;
+    }
+
+    printf("Enter new password: ");
+    fgets(newPass1, 20, stdin);
+    newPass1[strcspn(newPass1, "\n")] = 0;
+
+    printf("Confirm new password: ");
+    fgets(newPass2, 20, stdin);
+    newPass2[strcspn(newPass2, "\n")] = 0;
+
+    if (strcmp(newPass1, newPass2) != 0)
+    {
+        printf("Passwords don't match!\n");
+    }
+    else if (strlen(newPass1) < 4)
+    {
+        printf("Password must be at least 4 characters!\n");
+    }
+    else
+    {
+        strcpy(customers[index].password, newPass1);
+        saveCustomersToFile();
+        printf("Password changed successfully!\n");
+    }
+
+    pressToContinue();
+}
+
+// ---- CUSTOMER FILE OPERATIONS ----
 void saveCustomersToFile()
 {
     FILE *file = fopen("customers.txt", "w");
@@ -1239,7 +1607,7 @@ void saveCustomersToFile()
                 customers[i].age,
                 customers[i].phone,
                 customers[i].totalSpent,
-                customers[i].password); // Save password
+                customers[i].password);
     }
 
     fprintf(file, "==========================================================================================================\n");
@@ -1259,7 +1627,6 @@ void loadCustomersFromFile()
     customerCount = 0;
     char line[200];
 
-    // Skip header (3 lines)
     for (int i = 0; i < 3; i++)
     {
         fgets(line, sizeof(line), file);
@@ -1273,12 +1640,9 @@ void loadCustomersFromFile()
         }
 
         Customer c;
-        // Parse with password
         if (sscanf(line, "%d | %49[^|] | %d | %14[^|] | %f | %19[^\n]",
                    &c.id, c.name, &c.age, c.phone, &c.totalSpent, c.password) >= 5)
         {
-
-            // Trim spaces
             int len = strlen(c.name);
             while (len > 0 && c.name[len - 1] == ' ')
                 c.name[--len] = '\0';
@@ -1304,133 +1668,491 @@ void loadCustomersFromFile()
     fclose(file);
 }
 
-void loadAllData()
+// ============== BILLING MODULE ==============
+int getNextBillNo()
 {
-    loadProductsFromFile();
-    loadCustomersFromFile();
-}
-
-void saveAllData()
-{
-    saveProductsToFile();
-    saveCustomersToFile();
-}
-
-
-// ==================== UTILITY FUNCTIONS ====================
-int getNextProductId()
-{
-    int maxId = 1000;
-    for (int i = 0; i < productCount; i++)
+    int maxNo = 3000;
+    for (int i = 0; i < saleCount; i++)
     {
-        if (products[i].id > maxId)
+        if (sales[i].billNo > maxNo)
         {
-            maxId = products[i].id;
+            maxNo = sales[i].billNo;
         }
     }
-    return maxId + 1;
+    return maxNo + 1;
 }
 
-int getNextCustomerId()
-{
-    int maxId = 2000;
-    for (int i = 0; i < customerCount; i++)
-    {
-        if (customers[i].id > maxId)
-        {
-            maxId = customers[i].id;
-        }
-    }
-    return maxId + 1;
-}
-
-int findProductById(int id)
-{
-    for (int i = 0; i < productCount; i++)
-    {
-        if (products[i].id == id)
-        {
-            return i;
-        }
-    }
-    return -1;
-}
-
-int findCustomerById(int id)
-{
-    for (int i = 0; i < customerCount; i++)
-    {
-        if (customers[i].id == id)
-        {
-            return i;
-        }
-    }
-    return -1;
-}
-
-// ==================== CUSTOMER MENU FUNCTIONS ====================
-void viewCustomerPurchaseHistory()
-{
-    printHeader("MY PURCHASE HISTORY");
-    printf("Your purchase history will be displayed here.\n");
-    printf("Bill generated successfully!\n");
-    pressToContinue();
-}
-
-void viewCustomerProfile()
-{
-    printHeader("MY PROFILE");
-
-    int index = findCustomerById(currentUserId);
-    if (index != -1)
-    {
-        printf("Customer ID: %d\n", customers[index].id);
-        printf("Name: %s\n", customers[index].name);
-        printf("Age: %d\n", customers[index].age);
-        printf("Phone: %s\n", customers[index].phone);
-        printf("Total Spent: %.2f\n", customers[index].totalSpent);
-    }
-    else
-    {
-        printf("Customer information not found!\n");
-    }
-    pressToContinue();
-}
-
-// ==================== BILLING FUNCTION ====================
 void generateBill()
 {
     printHeader("GENERATE BILL");
-    printf("Bill generated successfully!\n");
-    printf("Thank you for your purchase!\n");
+
+    if (productCount == 0)
+    {
+        printf("No products available for billing!\n");
+        pressToContinue();
+        return;
+    }
+
+    int customerIndex = findCustomerById(currentUserId);
+    if (customerIndex == -1)
+    {
+        printf("Error: Customer not found!\n");
+        pressToContinue();
+        return;
+    }
+
+    char customerName[50];
+    strcpy(customerName, customers[customerIndex].name);
+    int customerId = currentUserId;
+
+    printf("Customer: %s (ID: %d)\n", customerName, customerId);
+    printf("========================================\n\n");
+
+    int maxItems = 100;
+    int cartIds[maxItems];
+    int cartQuantities[maxItems];
+    float cartPrices[maxItems];
+    int itemCount = 0;
+
+    char addMore = 'y';
+    while (addMore == 'y' || addMore == 'Y')
+    {
+        printf("\nAvailable Products:\n");
+        printf("----------------------------------------------------------------\n");
+        printf("ID    | Name                          | Price    | Stock\n");
+        printf("----------------------------------------------------------------\n");
+
+        for (int i = 0; i < productCount; i++)
+        {
+            if (products[i].quantity > 0)
+            {
+                printf("%-5d | %-30s | %-8.2f | %-5d\n",
+                       products[i].id,
+                       products[i].name,
+                       products[i].price,
+                       products[i].quantity);
+            }
+        }
+        printf("----------------------------------------------------------------\n");
+
+        int productId, quantity;
+        printf("\nEnter Product ID to add: ");
+        scanf("%d", &productId);
+        clearInputBuffer();
+
+        int productIndex = findProductById(productId);
+        if (productIndex == -1)
+        {
+            printf("Product with ID %d not found!\n", productId);
+            continue;
+        }
+
+        if (products[productIndex].quantity <= 0)
+        {
+            printf("Product '%s' is out of stock!\n", products[productIndex].name);
+            continue;
+        }
+
+        printf("Product: %s\n", products[productIndex].name);
+        printf("Price: %.2f\n", products[productIndex].price);
+        printf("Available Stock: %d\n", products[productIndex].quantity);
+
+        printf("Enter Quantity: ");
+        scanf("%d", &quantity);
+        clearInputBuffer();
+
+        if (quantity <= 0)
+        {
+            printf("Invalid quantity!\n");
+            continue;
+        }
+
+        if (quantity > products[productIndex].quantity)
+        {
+            printf("Insufficient stock! Only %d available.\n", products[productIndex].quantity);
+            continue;
+        }
+
+        cartIds[itemCount] = productId;
+        cartQuantities[itemCount] = quantity;
+        cartPrices[itemCount] = products[productIndex].price;
+        itemCount++;
+
+        products[productIndex].quantity -= quantity;
+
+        printf("Added %d x %s to cart\n", quantity, products[productIndex].name);
+
+        if (itemCount < maxItems)
+        {
+            printf("\nAdd another item? (y/n): ");
+            scanf(" %c", &addMore);
+            clearInputBuffer();
+        }
+        else
+        {
+            printf("\nCart is full!\n");
+            addMore = 'n';
+        }
+    }
+
+    if (itemCount == 0)
+    {
+        printf("No items in cart. Bill cancelled.\n");
+        pressToContinue();
+        return;
+    }
+
+    printf("\n\n");
+    printHeader("BILL RECEIPT");
+
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
+    char dateStr[15];
+    sprintf(dateStr, "%02d/%02d/%04d", tm.tm_mday, tm.tm_mon + 1, tm.tm_year + 1900);
+
+    int billNo = getNextBillNo();
+
+    printf("Bill No: %d\n", billNo);
+    printf("Date: %s\n", dateStr);
+    printf("Customer: %s (ID: %d)\n", customerName, customerId);
+    printf("================================================\n");
+    printf("Item                       Qty   Price   Total\n");
+    printf("------------------------------------------------\n");
+
+    float subtotal = 0;
+
+    for (int i = 0; i < itemCount; i++)
+    {
+        int productIndex = findProductById(cartIds[i]);
+        if (productIndex != -1)
+        {
+            float itemTotal = cartPrices[i] * cartQuantities[i];
+            subtotal += itemTotal;
+
+            char displayName[25];
+            strncpy(displayName, products[productIndex].name, 24);
+            displayName[24] = '\0';
+
+            printf("%-25s %-5d %-7.2f %-7.2f\n",
+                   displayName,
+                   cartQuantities[i],
+                   cartPrices[i],
+                   itemTotal);
+        }
+    }
+
+    printf("------------------------------------------------\n");
+
+    float tax = subtotal * 0.05;
+    float total = subtotal + tax;
+
+    printf("Subtotal: %38.2f\n", subtotal);
+    printf("Tax (5%%): %38.2f\n", tax);
+    printf("Total: %41.2f\n", total);
+    printf("================================================\n");
+
+    Sale newSale;
+    newSale.billNo = billNo;
+    strcpy(newSale.date, dateStr);
+    newSale.customerId = customerId;
+    strcpy(newSale.customerName, customerName);
+    newSale.totalAmount = total;
+    newSale.itemCount = itemCount;
+
+    if (saleCount >= saleCapacity)
+    {
+        saleCapacity *= 2;
+        sales = (Sale *)realloc(sales, saleCapacity * sizeof(Sale));
+    }
+    sales[saleCount] = newSale;
+    saleCount++;
+
+    customers[customerIndex].totalSpent += total;
+
+    saveSaleToFile(newSale);
+    saveProductsToFile();
+    saveCustomersToFile();
+
+    printf("\nThank you for your purchase!\n");
+    printf("Bill saved successfully.\n");
+
     pressToContinue();
 }
 
-// ==================== ADMIN FUNCTIONS ====================
-void customerManagement()
+// ---- SALES FILE OPERATIONS ----
+void saveSaleToFile(Sale sale)
 {
-    printHeader("CUSTOMER MANAGEMENT");
-    printf("All registered customers will be displayed here.\n");
-    pressToContinue();
+    FILE *file = fopen("sales.txt", "a");
+    if (file == NULL)
+    {
+        file = fopen("sales.txt", "w");
+        if (file == NULL)
+        {
+            printf("Error creating sales file!\n");
+            return;
+        }
+        fprintf(file, "==================================================================\n");
+        fprintf(file, "Bill No | Date         | Customer ID | Customer Name | Items | Amount\n");
+        fprintf(file, "==================================================================\n");
+        fclose(file);
+        file = fopen("sales.txt", "a");
+    }
+    else
+    {
+        fseek(file, 0, SEEK_END);
+        if (ftell(file) == 0)
+        {
+            fprintf(file, "==================================================================\n");
+            fprintf(file, "Bill No | Date         | Customer ID | Customer Name | Items | Amount\n");
+            fprintf(file, "==================================================================\n");
+        }
+        fclose(file);
+        file = fopen("sales.txt", "a");
+    }
+
+    fprintf(file, "%-7d | %-12s | %-11d | %-13s | %-5d | %-11.2f\n",
+            sale.billNo,
+            sale.date,
+            sale.customerId,
+            sale.customerName,
+            sale.itemCount,
+            sale.totalAmount);
+
+    fclose(file);
 }
 
+void loadSalesFromFile()
+{
+    FILE *file = fopen("sales.txt", "r");
+    if (file == NULL)
+    {
+        return;
+    }
+
+    saleCount = 0;
+    char line[200];
+
+    for (int i = 0; i < 3; i++)
+    {
+        fgets(line, sizeof(line), file);
+    }
+
+    while (fgets(line, sizeof(line), file))
+    {
+        if (strstr(line, "=====") != NULL)
+        {
+            continue;
+        }
+
+        Sale s;
+        if (sscanf(line, "%d | %14[^|] | %d | %49[^|] | %d | %f",
+                   &s.billNo, s.date, &s.customerId, s.customerName, &s.itemCount, &s.totalAmount) >= 5)
+        {
+            int len = strlen(s.date);
+            while (len > 0 && s.date[len - 1] == ' ')
+                s.date[--len] = '\0';
+
+            len = strlen(s.customerName);
+            while (len > 0 && s.customerName[len - 1] == ' ')
+                s.customerName[--len] = '\0';
+
+            if (saleCount >= saleCapacity)
+            {
+                saleCapacity *= 2;
+                sales = (Sale *)realloc(sales, saleCapacity * sizeof(Sale));
+            }
+            sales[saleCount] = s;
+            saleCount++;
+        }
+    }
+
+    fclose(file);
+}
+
+// ============== SIMPLIFIED REPORTING MODULE ==============
 void salesReport()
 {
     printHeader("SALES REPORT");
-    printf("Sales report will be displayed here.\n");
+
+    if (saleCount == 0)
+    {
+        printf("No sales recorded yet.\n");
+        pressToContinue();
+        return;
+    }
+
+    float totalRevenue = 0;
+    int totalItemsSold = 0;
+    float highestSale = 0;
+    int highestSaleIndex = 0;
+    float lowestSale = (saleCount > 0) ? sales[0].totalAmount : 0;
+    int lowestSaleIndex = 0;
+
+    for (int i = 0; i < saleCount; i++)
+    {
+        totalRevenue += sales[i].totalAmount;
+        totalItemsSold += sales[i].itemCount;
+
+        if (sales[i].totalAmount > highestSale)
+        {
+            highestSale = sales[i].totalAmount;
+            highestSaleIndex = i;
+        }
+        if (sales[i].totalAmount < lowestSale)
+        {
+            lowestSale = sales[i].totalAmount;
+            lowestSaleIndex = i;
+        }
+    }
+
+    printf("SALES SUMMARY:\n");
+    printf("==============\n");
+    printf("Total Sales (Bills): %d\n", saleCount);
+    printf("Total Revenue: %.2f\n", totalRevenue);
+    printf("Total Items Sold: %d\n", totalItemsSold);
+    printf("Average Sale Amount: %.2f\n", saleCount > 0 ? totalRevenue / saleCount : 0);
+    printf("Average Items per Sale: %.1f\n", saleCount > 0 ? (float)totalItemsSold / saleCount : 0);
+
+    printf("\nRECORD SALES:\n");
+    printf("Highest Sale: Bill #%d - %.2f (Customer: %s)\n",
+           sales[highestSaleIndex].billNo,
+           highestSale,
+           sales[highestSaleIndex].customerName);
+    printf("Lowest Sale: Bill #%d - %.2f (Customer: %s)\n",
+           sales[lowestSaleIndex].billNo,
+           lowestSale,
+           sales[lowestSaleIndex].customerName);
+
+    printf("\nTOP CUSTOMERS:\n");
+    printf("==============\n");
+
+    float customerSpending[100] = {0};
+    char customerNames[100][50];
+    int uniqueCustomerCount = 0;
+
+    for (int i = 0; i < saleCount; i++)
+    {
+        int found = 0;
+        for (int j = 0; j < uniqueCustomerCount; j++)
+        {
+            if (strcmp(customerNames[j], sales[i].customerName) == 0)
+            {
+                customerSpending[j] += sales[i].totalAmount;
+                found = 1;
+                break;
+            }
+        }
+        if (!found && uniqueCustomerCount < 100)
+        {
+            strcpy(customerNames[uniqueCustomerCount], sales[i].customerName);
+            customerSpending[uniqueCustomerCount] = sales[i].totalAmount;
+            uniqueCustomerCount++;
+        }
+    }
+
+    int displayCount = (uniqueCustomerCount < 3) ? uniqueCustomerCount : 3;
+    for (int i = 0; i < displayCount; i++)
+    {
+        printf("%d. %s: %.2f\n", i + 1, customerNames[i], customerSpending[i]);
+    }
+
+    printf("\nRECENT SALES (Last 5):\n");
+    printf("======================\n");
+    printf("Bill No | Date         | Customer         | Amount\n");
+    printf("--------------------------------------------------\n");
+
+    int start = (saleCount > 5) ? saleCount - 5 : 0;
+    for (int i = start; i < saleCount; i++)
+    {
+        printf("%-7d | %-12s | %-16s | %-11.2f\n",
+               sales[i].billNo,
+               sales[i].date,
+               sales[i].customerName,
+               sales[i].totalAmount);
+    }
+
     pressToContinue();
 }
 
 void inventoryReport()
 {
     printHeader("INVENTORY REPORT");
-    printf("Inventory report will be displayed here.\n");
+
+    if (productCount == 0)
+    {
+        printf("No products in inventory!\n");
+        pressToContinue();
+        return;
+    }
+
+    printf("===========================================================================================\n");
+    printf("ID    | Name                          | Category        | Price    | Qty  | Expiry Date\n");
+    printf("===========================================================================================\n");
+
+    for (int i = 0; i < productCount; i++)
+    {
+        printf("%-5d | %-30s | %-15s | %-8.2f | %-4d | %-15s\n",
+               products[i].id,
+               products[i].name,
+               products[i].category,
+               products[i].price,
+               products[i].quantity,
+               products[i].expiryDate);
+    }
+
+    printf("===========================================================================================\n");
+
+    float totalValue = 0;
+    int totalItems = 0;
+
+    for (int i = 0; i < productCount; i++)
+    {
+        totalValue += products[i].price * products[i].quantity;
+        totalItems += products[i].quantity;
+    }
+
+    printf("\nINVENTORY STATISTICS:\n");
+    printf("====================\n");
+    printf("Total Products: %d\n", productCount);
+    printf("Total Items in Stock: %d\n", totalItems);
+    printf("Total Inventory Value: %.2f\n", totalValue);
+    printf("Average Product Price: %.2f\n", totalItems > 0 ? totalValue / totalItems : 0);
+
+    printf("\nLOW STOCK ALERT (Quantity < 10):\n");
+    printf("================================\n");
+
+    int lowStockCount = 0;
+    for (int i = 0; i < productCount; i++)
+    {
+        if (products[i].quantity < 10)
+        {
+            printf("ID: %d, Name: %s, Stock: %d, Category: %s\n",
+                   products[i].id,
+                   products[i].name,
+                   products[i].quantity,
+                   products[i].category);
+            lowStockCount++;
+        }
+    }
+
+    if (lowStockCount == 0)
+    {
+        printf("No low stock items. All products have sufficient quantity.\n");
+    }
+
     pressToContinue();
 }
 
-void viewDataFiles()
+// ============== DATA MANAGEMENT ==============
+void saveAllData()
 {
-    printHeader("VIEW DATA FILES");
-    printf("Data files will be displayed here.\n");
-    pressToContinue();
+    saveProductsToFile();
+    saveCustomersToFile();
+}
+
+void loadAllData()
+{
+    loadProductsFromFile();
+    loadCustomersFromFile();
+    loadSalesFromFile();
 }
