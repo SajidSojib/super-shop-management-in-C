@@ -95,3 +95,7 @@ int findCustomerByPhone(char *phone);
 void clearInputBuffer();
 void printHeader(char *title);
 void pressToContinue();
+
+// File Operations
+void saveAllData();
+void loadAllData();
