@@ -580,3 +580,114 @@ void productManagement()
         }
     } while (1);
 }
+
+void addProduct()
+{
+    printHeader("ADD NEW PRODUCT");
+
+    // Check if we need to expand array
+    if (productCount >= productCapacity)
+    {
+        productCapacity *= 2;
+        products = (Product *)realloc(products, productCapacity * sizeof(Product));
+    }
+
+    Product newProduct;
+    newProduct.id = getNextProductId();
+
+    printf("Enter Product Name: ");
+    fgets(newProduct.name, 50, stdin);
+    newProduct.name[strcspn(newProduct.name, "\n")] = 0;
+
+    // Show categories
+    printf("\nAvailable Categories:\n");
+    for (int i = 0; i < categoryCount; i++)
+    {
+        printf("%2d. %s\n", i + 1, categories[i]);
+    }
+
+    int categoryChoice;
+    do
+    {
+        printf("\nSelect Category (1-%d): ", categoryCount);
+        scanf("%d", &categoryChoice);
+        clearInputBuffer();
+
+        if (categoryChoice < 1 || categoryChoice > categoryCount)
+        {
+            printf("Invalid choice! Please select between 1 and %d.\n", categoryCount);
+        }
+        else
+        {
+            strcpy(newProduct.category, categories[categoryChoice - 1]);
+            break;
+        }
+    } while (1);
+
+    printf("Enter Price: ");
+    scanf("%f", &newProduct.price);
+
+    printf("Enter Quantity: ");
+    scanf("%d", &newProduct.quantity);
+    clearInputBuffer();
+
+    printf("Enter Expiry Date (DD/MM/YYYY): ");
+    fgets(newProduct.expiryDate, 15, stdin);
+    newProduct.expiryDate[strcspn(newProduct.expiryDate, "\n")] = 0;
+
+    // Add to array
+    products[productCount] = newProduct;
+    productCount++;
+
+    printf("\nProduct added successfully!\n");
+    printf("Product ID: %d\n", newProduct.id);
+    printf("Product Name: %s\n", newProduct.name);
+    printf("Category: %s\n", newProduct.category);
+    printf("Price: %.2f | Quantity: %d\n", newProduct.price, newProduct.quantity);
+
+    // Save to file
+    saveProductsToFile();
+    pressToContinue();
+}
+
+void viewProducts()
+{
+    printHeader("ALL PRODUCTS");
+
+    if (productCount == 0)
+    {
+        printf("No products available in inventory!\n");
+        pressToContinue();
+        return;
+    }
+
+    printf("===========================================================================================\n");
+    printf("ID    | Name                          | Category        | Price    | Qty  | Expiry Date\n");
+    printf("===========================================================================================\n");
+
+    for (int i = 0; i < productCount; i++)
+    {
+        printf("%-5d | %-30s | %-15s | %-8.2f | %-4d | %-15s\n",
+               products[i].id,
+               products[i].name,
+               products[i].category,
+               products[i].price,
+               products[i].quantity,
+               products[i].expiryDate);
+    }
+
+    printf("===========================================================================================\n");
+    printf("Total Products: %d\n", productCount);
+
+    // Calculate and show inventory value
+    float totalValue = 0;
+    for (int i = 0; i < productCount; i++)
+    {
+        totalValue += products[i].price * products[i].quantity;
+    }
+    printf("Total Inventory Value: %.2f\n", totalValue);
+
+    pressToContinue();
+}
+
+
