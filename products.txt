@@ -1,20 +1,16 @@
-===========================================================================================
-ID    | Name                          | Category        | Price    | Qty  | Expiry Date
-===========================================================================================
-1001  | Coca                           | Beverages       | 80.00    | 47   | 31/12/2026     
-1002  | Pepsi                          | Beverages       | 90.00    | 45   | 30/06/2027     
-1003  | Lay's                          | Snacks          | 30.00    | 100  | 15/03/2026     
-1004  | Dairy                          | Confectionery   | 50.00    | 75   | 30/09/2027     
-1005  | Sunflower                      | Cooking         | 180.00   | 30   | 31/12/2026     
-1006  | Basmati                        | Grocery         | 550.00   | 25   | 31/12/2027     
-1007  | ACI                            | Grocery         | 40.00    | 60   | 31/12/2027     
-1008  | Pran                           | Condiments      | 120.00   | 40   | 30/06/2026     
-1009  | Fresh                          | Dairy           | 140.00   | 20   | 10/04/2026     
-1010  | Milk                           | Dairy           | 70.00    | 35   | 05/04/2026     
-1011  | Maggi                          | Instant         | 25.00    | 80   | 30/09/2027     
-1012  | Lifebuoy                       | Toiletries      | 45.00    | 55   | 31/12/2027     
-1013  | Closeup                        | Toiletries      | 85.00    | 40   | 30/11/2026     
-1014  | Good                           | Bakery          | 20.00    | 9   | 15/05/2026     
-1015  | Pran                           | Beverages       | 35.00    | 65   | 30/06/2027     
-===========================================================================================
-Total Products: 15
+ID,Name,Category,Price,Quantity,ExpiryDate
+1001,Coca-Cola 1.5L,Beverages,80.00,50,15/12/2024
+1002,Lays Classic 50g,Snacks,30.00,97,30/11/2024
+1003,Amul Milk 1L,Dairy,60.00,30,20/10/2024
+1004,Basmati Rice 5kg,Grocery,450.00,20,31/12/2024
+1005,Apple 1kg,Fruits,120.00,35,25/10/2024
+1006,Potato 1kg,Vegetables,30.00,60,18/10/2024
+1007,Chicken 1kg,Meat,200.00,15,17/10/2024
+1008,Rohu Fish 1kg,Fish,180.00,10,16/10/2024
+1009,Bread 400g,Bakery,40.00,25,19/10/2024
+1010,Colgate Toothpaste,Toiletries,85.00,35,30/06/2025
+1011,Pepsi 2L,Beverages,90.00,45,20/12/2024
+1012,Kurkure 50g,Snacks,20.00,80,15/11/2024
+1013,Amul Butter 100g,Dairy,50.00,25,30/11/2024
+1014,Wheat Flour 5kg,Grocery,220.00,18,31/01/2025
+1015,Banana 1kg,Fruits,40.00,55,22/10/2024
